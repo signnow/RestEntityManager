@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody;
 
 use GuzzleHttp\RequestOptions;
+use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\FileLinkItem;
 use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\Item;
 use SignNow\Rest\Service\Serializer\Type\FileLink;
 use SignNow\Rest\Service\Serializer\Type\File;
@@ -82,8 +83,7 @@ class MultipartFormatter extends Formatter
                 $item = new Item($name, fopen($value->getRealPath(), 'r'), [], $value->getFilename());
                 break;
             case $value instanceof FileLink:
-                $context = stream_context_create(['http' => ['method' => 'GET']]);
-                $item = new Item($name, fopen($value->getLink(), 'r', false, $context), [], $value->getFilename());
+                $item = new FileLinkItem($name, $value->getLink(), [], $value->getFilename());
                 break;
             case $value instanceof File:
                 $item = new Item($name, $value->getContent(), [], $value->getFilename());
