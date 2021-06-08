@@ -17,7 +17,7 @@ use SignNow\Rest\EntityManagerFactory;
  * @uses \SignNow\Rest\EntityManager
  * @uses \SignNow\Rest\EntityManager\AnnotationResolver
  * @uses \SignNow\Rest\Service\Request\Pool
- * @uses \SignNow\Rest\Service\Serializer\Handler\File
+ * @uses \SignNow\Rest\Service\Serializer\Handler\SplFileInfo
  */
 class EntityManagerFactoryTest extends TestCase
 {
