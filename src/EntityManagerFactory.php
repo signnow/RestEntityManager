@@ -18,6 +18,7 @@ use SignNow\Rest\Service\Serializer\Handler\FileLink;
  * Class EntityManagerFactory
  *
  * @package SignNow\Rest
+ * @deprecated Please use SignNow\Rest\Factories\EntityManagerFactory instead of this class
  */
 class EntityManagerFactory
 {
