@@ -6,6 +6,7 @@ namespace SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody;
 use GuzzleHttp\RequestOptions;
 use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\FileLinkItem;
 use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\Item;
+use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\SplFileInfoItem;
 use SignNow\Rest\Service\Serializer\Type\FileLink;
 use SignNow\Rest\Service\Serializer\Type\File;
 use SplFileInfo;
@@ -80,7 +81,7 @@ class MultipartFormatter extends Formatter
     
         switch (true) {
             case $value instanceof SplFileInfo:
-                $item = new Item($name, fopen($value->getRealPath(), 'r'), [], $value->getFilename());
+                $item = new SplFileInfoItem($name, $value, [], $value->getFilename());
                 break;
             case $value instanceof FileLink:
                 $item = new FileLinkItem($name, $value->getLink(), [], $value->getFilename());
