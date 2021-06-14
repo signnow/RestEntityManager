@@ -22,7 +22,8 @@ use Doctrine\Common\Annotations\AnnotationRegistry;
 use JMS\Serializer\Annotation as Serializer;
 use SignNow\Rest\EntityManager\Annotation\HttpEntity;
 use SignNow\Rest\Entity\Entity;
-use SignNow\Rest\EntityManagerFactory;
+use SignNow\Rest\Factories\ClientFactory;
+use SignNow\Rest\Factories\EntityManagerFactory;
 
 /**
  * Class User
@@ -60,8 +61,8 @@ class User extends Entity
     }
 }
 
-$entityManager = (new EntityManagerFactory())
-    ->createEntityManager(['base_uri' => 'https://api.github.com']);
+$clientFactory = new ClientFactory(['base_uri' => 'https://api.github.com']);
+$entityManager = (new EntityManagerFactory($clientFactory))->create();
 
 /** @var User $user */
 $user = $entityManager->get(User::class, ['user' => 'codeception']);
