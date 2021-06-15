@@ -5,18 +5,25 @@ namespace Tests\Unit;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use GuzzleHttp\ClientInterface;
+use InvalidArgumentException;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use ReflectionException;
+use SignNow\Rest\Entity\Binary;
 use SignNow\Rest\EntityManager;
 use SignNow\Rest\EntityManager\AnnotationFactory;
 use SignNow\Rest\EntityManager\AnnotationResolver;
+use SignNow\Rest\EntityManager\Exception\EntityManagerException;
+use SignNow\Rest\Http\Request;
 use SignNow\Rest\Service\Request\Pool;
 use SignNow\Rest\Service\Request\Pool\Item;
 use Tests\Fixtures\Entity\FieldEntity;
+use Tests\Fixtures\Entity\FileEntity;
+use Tests\Fixtures\Entity\SimpleEntity;
 
 /**
  * Class EntityManagerTest
@@ -46,7 +53,7 @@ class EntityManagerTest extends TestCase
      * @return void
      *
      * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public function setUp(): void
     {
@@ -61,9 +68,9 @@ class EntityManagerTest extends TestCase
      * @param string $expectedId
      * @param string $expectedType
      *
-     * @throws EntityManager\Exception\EntityManagerException
+     * @throws EntityManagerException
      * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
+     * @throws ReflectionException
      *
      * @dataProvider getDataProvider
      * @covers ::get
@@ -94,8 +101,8 @@ class EntityManagerTest extends TestCase
      * @param FieldEntity $entity
      * @param string      $response
      *
-     * @throws EntityManager\Exception\EntityManagerException
-     * @throws \ReflectionException
+     * @throws EntityManagerException
+     * @throws ReflectionException
      *
      * @dataProvider createDataProvider
      * @covers ::create
@@ -132,8 +139,8 @@ class EntityManagerTest extends TestCase
      * @param string      $expectedType
      * @param string      $response
      *
-     * @throws EntityManager\Exception\EntityManagerException
-     * @throws \ReflectionException
+     * @throws EntityManagerException
+     * @throws ReflectionException
      *
      * @dataProvider updateDataProvider
      * @covers ::update
@@ -167,8 +174,8 @@ class EntityManagerTest extends TestCase
     }
 
     /**
-     * @throws EntityManager\Exception\EntityManagerException
-     * @throws \ReflectionException
+     * @throws EntityManagerException
+     * @throws ReflectionException
      *
      * @covers ::delete
      * @covers \SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\FormatterFactory
@@ -196,6 +203,122 @@ class EntityManagerTest extends TestCase
             ->setId('85ed071eb4bd47a4769be9af0303e91d7303c62d');
 
         $this->assertNotEmpty($entityManager->delete($entity));
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     *
+     * @covers \SignNow\Rest\EntityManager\AnnotationResolver
+     * @covers \SignNow\Rest\EntityManager\Annotation\HttpEntity
+     * @covers \SignNow\Rest\EntityManager\Annotation\ResponseType
+     * @covers \SignNow\Rest\Service\Request\Pool
+     * @covers \SignNow\Rest\Service\Request\Pool\Item
+     * @covers \SignNow\Rest\EntityManager
+     * @covers \SignNow\Rest\Entity\Collection\Errors
+     * @covers \SignNow\Rest\Entity\Entity
+     * @covers \SignNow\Rest\Entity\Binary
+     * @covers \SignNow\Rest\EntityManager\Annotation\Annotation
+     */
+    public function testBinaryFileResponseRetrieving(): void
+    {
+        $binaryContent = base64_encode('some content');
+        
+        /** @var StreamInterface|MockObject $responseStream */
+        $responseStream = $this->getMockForAbstractClass(StreamInterface::class);
+        $responseStream
+            ->method('getContents')
+            ->willReturn($binaryContent);
+    
+        /** @var ResponseInterface|MockObject $response */
+        $response = $this->getMockForAbstractClass(ResponseInterface::class);
+        $response
+            ->method('getBody')
+            ->willReturn($responseStream);
+    
+        /** @var Item|MockObject $item */
+        $item = $this->getMockBuilder(Item::class)
+            ->setMethods(['getResponse', 'getEntity'])
+            ->getMock();
+        $item
+            ->method('getResponse')
+            ->willReturn($response);
+        $item
+            ->method('getEntity')
+            ->willReturn(new FileEntity());
+    
+        /** @var Pool|MockObject $pool */
+        $pool = $this->getMockBuilder(Pool::class)
+            ->setConstructorArgs([$this->client])
+            ->setMethods(['getItems', 'send'])
+            ->getMock();
+    
+        $pool
+            ->method('getItems')
+            ->willReturn([$item]);
+    
+        $pool
+            ->method('send')
+            ->willReturn($pool);
+        
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver, $pool);
+        
+        /** @var Binary $binaryResponse */
+        $binaryResponse = $entityManager->get(FileEntity::class, ['id' => 'id']);
+        
+        $this->assertInstanceOf(Binary::class, $binaryResponse);
+        $this->assertEquals($binaryContent, $binaryResponse->getContent());
+    }
+    
+    /**
+     * @throws ReflectionException
+     *
+     * @covers ::setClient
+     * @covers \SignNow\Rest\EntityManager
+     * @covers \SignNow\Rest\EntityManager\AnnotationResolver
+     * @covers \SignNow\Rest\Service\Request\Pool
+     */
+    public function testSetClient(): void
+    {
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver);
+        
+        $newClient = $this->getMockForAbstractClass(ClientInterface::class);
+        
+        $entityManager->setClient($newClient);
+        
+        $this->assertAttributeEquals($newClient, 'client', $entityManager);
+    }
+    
+    /**
+     * @covers ::setUpdateHttpMethod
+     * @covers ::__construct
+     * @covers \SignNow\Rest\EntityManager\AnnotationResolver
+     * @covers \SignNow\Rest\Service\Request\Pool
+     */
+    public function testSetHttpMethod(): void
+    {
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver);
+        $entityManager->setUpdateHttpMethod(Request::METHOD_PUT);
+        
+        $this->assertAttributeEquals(Request::METHOD_PUT, 'updateHttpMethod', $entityManager);
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     *
+     * @covers ::get
+     * @covers ::__construct
+     * @covers ::createEntity
+     * @covers \SignNow\Rest\EntityManager\AnnotationResolver
+     * @covers \SignNow\Rest\Service\Request\Pool
+     */
+    public function testExceptionOnInvalidEntity(): void
+    {
+        $this->expectException(InvalidArgumentException::class);
+        
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver);
+        $entityManager->get(SimpleEntity::class);
     }
     
     /**
@@ -259,7 +382,7 @@ class EntityManagerTest extends TestCase
      *
      * @return MockObject|Pool
      *
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     private function createPool(string $responseContent)
     {
