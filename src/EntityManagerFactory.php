@@ -11,12 +11,14 @@ use GuzzleHttp\HandlerStack;
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\SerializerBuilder;
 use SignNow\Rest\Service\Serializer\Handler\File;
-use SignNow\Rest\Service\Serializer\Handler\Link;
+use SignNow\Rest\Service\Serializer\Handler\SplFileInfo;
+use SignNow\Rest\Service\Serializer\Handler\FileLink;
 
 /**
  * Class EntityManagerFactory
  *
  * @package SignNow\Rest
+ * @deprecated Please use SignNow\Rest\Factories\EntityManagerFactory instead of this class
  */
 class EntityManagerFactory
 {
@@ -30,22 +32,23 @@ class EntityManagerFactory
     {
         $stack = HandlerStack::create();
         $stack->setHandler(new CurlMultiHandler());
-    
+        
         $defaultClientOptions = [
             'handler' => $stack,
         ];
         $client = new Client(array_merge($defaultClientOptions, $clientOptions));
-    
+        
         $builder = SerializerBuilder::create();
         $builder->addDefaultSerializationVisitors();
         $builder->addDefaultDeserializationVisitors();
-        $builder->configureHandlers(function(HandlerRegistry $registry) {
+        $builder->configureHandlers(function (HandlerRegistry $registry) {
+            $registry->registerSubscribingHandler(new SplFileInfo());
+            $registry->registerSubscribingHandler(new FileLink());
             $registry->registerSubscribingHandler(new File());
-            $registry->registerSubscribingHandler(new Link());
         });
-    
+        
         $resolver = new EntityManager\AnnotationResolver(new AnnotationReader(), new EntityManager\AnnotationFactory());
-    
+        
         return new EntityManager($client, $builder->build(), $resolver);
     }
 }

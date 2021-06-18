@@ -4,6 +4,9 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation;
 
 use InvalidArgumentException;
+use JMS\Serializer\TypeParser;
+use SignNow\Rest\Entity\Binary;
+use Throwable;
 
 /**
  * Class ResponseType
@@ -42,8 +45,10 @@ class ResponseType extends Annotation
             $this->type = $this->owner->getEntityClass();
         }
         
-        if (!class_exists($this->type)) {
-            throw new InvalidArgumentException('Response type ['.$this->type.'] does not exists');
+        try {
+            (new TypeParser())->parse($this->type);
+        } catch (Throwable $e) {
+            throw new InvalidArgumentException('Invalid response type format: ' . $e->getMessage());
         }
     }
     
@@ -53,5 +58,13 @@ class ResponseType extends Annotation
     public function getType(): string
     {
         return $this->type;
+    }
+    
+    /**
+     * @return bool
+     */
+    public function isBinary(): bool
+    {
+        return $this->type == Binary::class;
     }
 }

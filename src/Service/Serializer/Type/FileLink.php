@@ -16,13 +16,20 @@ class FileLink
     private $link;
     
     /**
+     * @var string|null
+     */
+    private $filename;
+    
+    /**
      * FileLink constructor.
      *
-     * @param string $link
+     * @param string      $link
+     * @param string|null $filename
      */
-    public function __construct(string $link)
+    public function __construct(string $link, string $filename = null)
     {
         $this->link = $link;
+        $this->filename = $filename ?: explode("?", basename($this->link))[0];
     }
     
     /**
@@ -30,7 +37,7 @@ class FileLink
      */
     public function getFilename(): string
     {
-        return explode("?", basename($this->link))[0];
+        return $this->filename;
     }
     
     /**

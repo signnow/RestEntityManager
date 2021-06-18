@@ -4,8 +4,11 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody;
 
 use GuzzleHttp\RequestOptions;
+use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\FileLinkItem;
 use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\Item;
+use SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody\Multipart\SplFileInfoItem;
 use SignNow\Rest\Service\Serializer\Type\FileLink;
+use SignNow\Rest\Service\Serializer\Type\File;
 use SplFileInfo;
 
 /**
@@ -74,13 +77,23 @@ class MultipartFormatter extends Formatter
             }
             
             return $parts;
-        } elseif ($value instanceof SplFileInfo) {
-            return new Item($name, fopen($value->getRealPath(), 'r'), [], $value->getFilename());
-        } elseif ($value instanceof FileLink) {
-            $context = stream_context_create(['http' => ['method' => 'GET']]);
-            return new Item($name, fopen($value->getLink(), 'r', false, $context), [], $value->getFilename());
-        } else {
-            return new Item($name, $value);
         }
+    
+        switch (true) {
+            case $value instanceof SplFileInfo:
+                $item = new SplFileInfoItem($name, $value, [], $value->getFilename());
+                break;
+            case $value instanceof FileLink:
+                $item = new FileLinkItem($name, $value->getLink(), [], $value->getFilename());
+                break;
+            case $value instanceof File:
+                $item = new Item($name, $value->getContent(), [], $value->getFilename());
+                break;
+            default:
+                $item = new Item($name, $value);
+                break;
+        }
+    
+        return $item;
     }
 }

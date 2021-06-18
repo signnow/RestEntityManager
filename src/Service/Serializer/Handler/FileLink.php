@@ -7,14 +7,14 @@ use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\SerializationContext;
-use SignNow\Rest\Service\Serializer\Type\FileLink;
+use SignNow\Rest\Service\Serializer\Type\FileLink as FileLinkType;
 
 /**
- * Class Link
+ * Class FileLink
  *
  * @package SignNow\Rest\Service\Serializer\Handler
  */
-class Link implements SubscribingHandlerInterface
+class FileLink implements SubscribingHandlerInterface
 {
     /**
      * Return format:
@@ -38,7 +38,7 @@ class Link implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => FileLink::class,
+                'type' => FileLinkType::class,
                 'method' => 'serializeFile',
             ],
         ];
@@ -46,19 +46,18 @@ class Link implements SubscribingHandlerInterface
     
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param FileLink                 $link
+     * @param FileLinkType             $link
      * @param array                    $type
      * @param SerializationContext     $context
      *
-     * @return FileLink
+     * @return FileLinkType
      */
     public function serializeFile(
         JsonSerializationVisitor $visitor,
-        FileLink $link,
+        FileLinkType $link,
         array $type,
         SerializationContext $context
-    )
-    {
+    ) {
         return $link;
     }
 }

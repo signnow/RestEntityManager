@@ -359,7 +359,7 @@ class EntityManager
     {
         $responseType = $this->resolver->getResponseType($entity);
         
-        if (trim($responseType->getType(), "\\") == Binary::class) {
+        if ($responseType->isBinary()) {
             return (new Binary())->setContent($response->getBody()->getContents());
         }
         

@@ -7,14 +7,14 @@ use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\SerializationContext;
-use SignNow\Rest\Service\Serializer\Type\File as FileType;
+use SplFileInfo as SplFileInfoType;
 
 /**
- * Class File
+ * Class SplFileInfo
  *
  * @package SignNow\Rest\Service\Serializer\Handler
  */
-class File implements SubscribingHandlerInterface
+class SplFileInfo implements SubscribingHandlerInterface
 {
     /**
      * The direction and method keys can be omitted.
@@ -29,7 +29,7 @@ class File implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
                 'format' => 'json',
-                'type' => FileType::class,
+                'type' => SplFileInfoType::class,
                 'method' => 'serializeFile',
             ],
         ];
@@ -37,15 +37,15 @@ class File implements SubscribingHandlerInterface
     
     /**
      * @param JsonSerializationVisitor $visitor
-     * @param FileType                 $file
+     * @param SplFileInfoType          $file
      * @param array                    $type
      * @param SerializationContext     $context
      *
-     * @return FileType
+     * @return SplFileInfoType
      */
     public function serializeFile(
         JsonSerializationVisitor $visitor,
-        FileType $file,
+        SplFileInfoType $file,
         array $type,
         SerializationContext $context
     ) {
