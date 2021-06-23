@@ -5,8 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [v1.1.0] - 2021-06-18
-
+## [v2.0.0] - 2021-06-23
 ### Added
 
 - Add new file entity to serialize
@@ -14,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Refactor factories
-- Update serializer version
+- Update jms/serializer to 3+ version
 - Update guzzle to 7+ version
 
 ### Deprecated

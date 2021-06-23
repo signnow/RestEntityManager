@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation;
 
 use InvalidArgumentException;
-use JMS\Serializer\TypeParser;
+use JMS\Serializer\Type\Parser;
 use SignNow\Rest\Entity\Binary;
 use Throwable;
 
@@ -46,7 +46,7 @@ class ResponseType extends Annotation
         }
         
         try {
-            (new TypeParser())->parse($this->type);
+            (new Parser())->parse($this->type);
         } catch (Throwable $e) {
             throw new InvalidArgumentException('Invalid response type format: ' . $e->getMessage());
         }
