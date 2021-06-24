@@ -8,16 +8,20 @@ use GuzzleHttp\ClientInterface;
 use InvalidArgumentException;
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializerBuilder;
+use LogicException;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use ReflectionException;
 use SignNow\Rest\Entity\Binary;
+use SignNow\Rest\Entity\Collection\Errors;
+use SignNow\Rest\Entity\Error;
 use SignNow\Rest\EntityManager;
 use SignNow\Rest\EntityManager\AnnotationFactory;
 use SignNow\Rest\EntityManager\AnnotationResolver;
 use SignNow\Rest\EntityManager\Exception\EntityManagerException;
+use SignNow\Rest\EntityManager\Exception\PoolException;
 use SignNow\Rest\Http\Request;
 use SignNow\Rest\Service\Request\Pool;
 use SignNow\Rest\Service\Request\Pool\Item;
@@ -319,6 +323,109 @@ class EntityManagerTest extends TestCase
         
         $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver);
         $entityManager->get(SimpleEntity::class);
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     */
+    public function testRequestPool(): void
+    {
+        $entityManager = new EntityManager(
+            $this->client,
+            $this->serializer,
+            $this->resolver,
+            $this->createPool('{"id": "030b82bb8671c23d5b8bc7808759aa605f48b8e0", "type": "signature"}')
+        );
+        $entityManager->openRequestPool();
+        $entityManager->get(FieldEntity::class, ['id' => '030b82bb8671c23d5b8bc7808759aa605f48b8e0']);
+        $responses = $entityManager->sendRequestPool();
+        
+        $this->assertNotEmpty($responses);
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     */
+    public function testAnErrorOnSendingRequestPoolWithoutRequest(): void
+    {
+        $this->expectException(LogicException::class);
+        
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver, new Pool($this->client));
+        $entityManager->openRequestPool();
+        $entityManager->sendRequestPool();
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     */
+    public function testAnErrorFromRequest(): void
+    {
+        $this->expectException(EntityManagerException::class);
+    
+        $pool = $this->getMockBuilder(Pool::class)
+            ->setConstructorArgs([$this->client])
+            ->setMethods(['send', 'getErrors'])
+            ->getMock();
+        
+        $error = new Error();
+        $error->setMessage('some error');
+        
+        $errorCollection = new Errors();
+        $errorCollection->push(0, $error);
+        
+        $pool
+            ->method('getErrors')
+            ->willReturn($errorCollection);
+        $pool
+            ->method('send')
+            ->willThrowException(new PoolException());
+        
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver, $pool);
+        $entityManager->openRequestPool();
+        $entityManager->get(FileEntity::class);
+        $entityManager->sendRequestPool();
+    }
+    
+    /**
+     * @throws EntityManagerException
+     * @throws ReflectionException
+     */
+    public function testRetrievingErrorsFormPool(): void
+    {
+        $pool = $this->getMockBuilder(Pool::class)
+            ->setConstructorArgs([$this->client])
+            ->setMethods(['send', 'getErrors'])
+            ->getMock();
+    
+        $response = $this->getMockForAbstractClass(ResponseInterface::class);
+        $error = new Error();
+        $error->setMessage('some error');
+        $error->setResponse($response);
+    
+        $errorCollection = new Errors();
+        $errorCollection->push(0, $error);
+    
+        $pool
+            ->method('getErrors')
+            ->willReturn($errorCollection);
+        $pool
+            ->method('send')
+            ->willThrowException(new PoolException());
+    
+        $entityManager = new EntityManager($this->client, $this->serializer, $this->resolver, $pool);
+        $entityManager->openRequestPool();
+        $entityManager->get(FileEntity::class);
+        try {
+            $entityManager->sendRequestPool();
+        } catch (EntityManagerException $e) {
+            // skip exception to retrieve all errors
+        }
+        
+        $this->assertNotEmpty($entityManager->getErrors());
+        $this->assertSame($response, $entityManager->getErrors()->getError(0)->getResponse());
     }
     
     /**
