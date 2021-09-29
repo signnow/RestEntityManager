@@ -85,6 +85,7 @@ class EntityManager
         $this->serializer = $serializer;
         $this->resolver = $resolver;
         $this->requestPool = $requestPool ?: new Pool($client);
+        $this->errors = new Errors();
     }
     
     /**
@@ -312,7 +313,7 @@ class EntityManager
             }
             
         } catch (PoolException $e) {
-            $this->errors = $this->requestPool->getErrors();
+            $this->errors = clone $this->requestPool->getErrors();
             
             throw new EntityManagerException("Request failed!\nReason:\n".$this->errors->getFullMessage());
         } finally {
