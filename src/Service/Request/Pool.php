@@ -5,12 +5,12 @@ namespace SignNow\Rest\Service\Request;
 
 use Exception;
 use GuzzleHttp\ClientInterface;
-use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use LogicException;
 use SignNow\Rest\Entity\Collection\Errors;
-use SignNow\Rest\Entity\Error;
 use SignNow\Rest\EntityManager\Exception\PoolException;
+use SignNow\Rest\Service\Request\Handler\DefaultErrorHandler;
+use SignNow\Rest\Service\Request\Handler\ErrorHandlerInterface;
 use SignNow\Rest\Service\Request\Pool\Item;
 
 /**
@@ -26,6 +26,11 @@ class Pool implements PoolInterface
     protected $client;
     
     /**
+     * @var ErrorHandlerInterface
+     */
+    private $errorHandler;
+    
+    /**
      * @var Item[]
      */
     protected $items = [];
@@ -39,10 +44,12 @@ class Pool implements PoolInterface
      * Pool constructor.
      *
      * @param ClientInterface $client
+     * @param ErrorHandlerInterface|null $errorHandler
      */
-    public function __construct(ClientInterface $client)
+    public function __construct(ClientInterface $client, ?ErrorHandlerInterface $errorHandler = null)
     {
         $this->client = $client;
+        $this->errorHandler = $errorHandler ?: new DefaultErrorHandler();
         $this->errors = new Errors();
     }
     
@@ -63,19 +70,8 @@ class Pool implements PoolInterface
         }, $this->items);
         
         $options = [
-            'fulfilled' => function (Response $response, $index) {
-                $this->items[$index]->setResponse($response);
-            },
-            'rejected' => function (Exception $reason, $index, $promise) {
-                $error = new Error();
-                $response = ($reason instanceof RequestException) ? $reason->getResponse() : null;
-                
-                $error->setResponse($response);
-                $error->setMessage($reason->getMessage());
-                $this->errors->push((int)$index, $error);
-                
-                $this->items[$index]->setError($this->errors->getError($index));
-            },
+            'fulfilled' => $this->onFulfilled(),
+            'rejected' => $this->onRejected(),
         ];
         
         if ($concurrencyLimit) {
@@ -143,5 +139,28 @@ class Pool implements PoolInterface
     public function getErrors(): Errors
     {
         return $this->errors;
+    }
+    
+    /**
+     * @return callable
+     */
+    protected function onFulfilled(): callable
+    {
+        return function (Response $response, $index) {
+            $this->items[$index]->setResponse($response);
+        };
+    }
+    
+    /**
+     * @return callable
+     */
+    protected function onRejected(): callable
+    {
+        return function (Exception $reason, $index, $promise) {
+            $error = $this->errorHandler->handle($reason);
+            
+            $this->errors->push((int)$index, $error);
+            $this->items[$index]->setError($error);
+        };
     }
 }
