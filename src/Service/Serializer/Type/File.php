@@ -45,6 +45,6 @@ class File
      */
     public function getFilename(): string
     {
-        return $this->filename;
+        return str_replace('"', '', $this->filename);
     }
 }
