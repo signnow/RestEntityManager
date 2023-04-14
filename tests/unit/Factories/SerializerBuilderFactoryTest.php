@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Tests\Unit\Factories;
 
-use JMS\Serializer\SerializerBuilder;
+use SignNow\Serializer\SerializerBuilder;
 use PHPUnit\Framework\TestCase;
 use SignNow\Rest\Factories\SerializerBuilderFactory;
 

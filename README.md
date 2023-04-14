@@ -19,7 +19,7 @@ composer require signnow/rest-entity-manager
 
 ```php
 use Doctrine\Common\Annotations\AnnotationRegistry;
-use JMS\Serializer\Annotation as Serializer;
+use SignNow\Serializer\Annotation as Serializer;
 use SignNow\Rest\EntityManager\Annotation\HttpEntity;
 use SignNow\Rest\Entity\Entity;
 use SignNow\Rest\Factories\ClientFactory;

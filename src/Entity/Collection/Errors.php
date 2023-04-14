@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace SignNow\Rest\Entity\Collection;
 
-use JMS\Serializer\Annotation as Serializer;
+use SignNow\Serializer\Annotation as Serializer;
 use SignNow\Rest\Entity\Error;
 
 /**

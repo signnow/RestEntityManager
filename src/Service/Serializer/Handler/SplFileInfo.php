@@ -3,10 +3,10 @@ declare(strict_types = 1);
 
 namespace SignNow\Rest\Service\Serializer\Handler;
 
-use JMS\Serializer\GraphNavigatorInterface;
-use JMS\Serializer\Handler\SubscribingHandlerInterface;
-use JMS\Serializer\JsonSerializationVisitor;
-use JMS\Serializer\SerializationContext;
+use SignNow\Serializer\GraphNavigatorInterface;
+use SignNow\Serializer\Handler\SubscribingHandlerInterface;
+use SignNow\Serializer\JsonSerializationVisitor;
+use SignNow\Serializer\SerializationContext;
 use SplFileInfo as SplFileInfoType;
 
 /**

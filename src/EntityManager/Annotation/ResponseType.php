@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation;
 
 use InvalidArgumentException;
-use JMS\Serializer\Type\Parser;
+use SignNow\Serializer\Type\Parser;
 use SignNow\Rest\Entity\Binary;
 use Throwable;
 

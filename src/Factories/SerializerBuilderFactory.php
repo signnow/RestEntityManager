@@ -3,8 +3,8 @@ declare(strict_types = 1);
 
 namespace SignNow\Rest\Factories;
 
-use JMS\Serializer\Handler\HandlerRegistry;
-use JMS\Serializer\SerializerBuilder;
+use SignNow\Serializer\Handler\HandlerRegistry;
+use SignNow\Serializer\SerializerBuilder;
 use SignNow\Rest\Service\Serializer\Handler\File;
 use SignNow\Rest\Service\Serializer\Handler\FileLink;
 use SignNow\Rest\Service\Serializer\Handler\SplFileInfo;

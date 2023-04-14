@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Tests\Unit\Service\Serializer;
 
 use GuzzleHttp\ClientInterface;
-use JMS\Serializer\Serializer;
+use SignNow\Serializer\Serializer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;

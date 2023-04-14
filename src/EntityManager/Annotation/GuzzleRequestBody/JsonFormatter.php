@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace SignNow\Rest\EntityManager\Annotation\GuzzleRequestBody;
 
 use GuzzleHttp\RequestOptions;
-use JMS\Serializer\Exception\RuntimeException;
+use SignNow\Serializer\Exception\RuntimeException;
 
 /**
  * Class JsonFormatter

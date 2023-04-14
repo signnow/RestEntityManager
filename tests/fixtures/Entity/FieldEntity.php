@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Tests\Fixtures\Entity;
 
-use JMS\Serializer\Annotation as Serializer;
+use SignNow\Serializer\Annotation as Serializer;
 use SignNow\Rest\Entity\Entity;
 use SignNow\Rest\EntityManager\Annotation\HttpEntity;
 
