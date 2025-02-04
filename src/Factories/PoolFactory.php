@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace SignNow\Rest\Factories;
 
 use GuzzleHttp\ClientInterface;
+use SignNow\Rest\Contracts\PoolFactoryInterface;
 use SignNow\Rest\Service\Request\Pool;
 
 /**
@@ -11,7 +12,7 @@ use SignNow\Rest\Service\Request\Pool;
  *
  * @package SignNow\Rest\Factories
  */
-class PoolFactory
+class PoolFactory implements PoolFactoryInterface
 {
     /**
      * @param ClientInterface $client

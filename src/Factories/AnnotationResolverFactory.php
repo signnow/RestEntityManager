@@ -5,6 +5,7 @@ namespace SignNow\Rest\Factories;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Annotations\Reader;
+use SignNow\Rest\Contracts\AnnotationResolverFactoryInterface;
 use SignNow\Rest\EntityManager\AnnotationFactory;
 use SignNow\Rest\EntityManager\AnnotationResolver;
 
@@ -13,7 +14,7 @@ use SignNow\Rest\EntityManager\AnnotationResolver;
  *
  * @package SignNow\Rest\Factories
  */
-class AnnotationResolverFactory
+class AnnotationResolverFactory implements AnnotationResolverFactoryInterface
 {
     /**
      * @var AnnotationFactory|null

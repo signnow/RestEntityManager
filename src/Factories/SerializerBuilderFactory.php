@@ -5,6 +5,7 @@ namespace SignNow\Rest\Factories;
 
 use JMS\Serializer\Handler\HandlerRegistry;
 use JMS\Serializer\SerializerBuilder;
+use SignNow\Rest\Contracts\SerializerBuilderFactoryInterface;
 use SignNow\Rest\Service\Serializer\Handler\File;
 use SignNow\Rest\Service\Serializer\Handler\FileLink;
 use SignNow\Rest\Service\Serializer\Handler\SplFileInfo;
@@ -14,7 +15,7 @@ use SignNow\Rest\Service\Serializer\Handler\SplFileInfo;
  *
  * @package SignNow\Rest\Factories
  */
-class SerializerBuilderFactory
+class SerializerBuilderFactory implements SerializerBuilderFactoryInterface
 {
     /**
      * @return SerializerBuilder

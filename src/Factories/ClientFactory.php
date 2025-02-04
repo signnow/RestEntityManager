@@ -6,13 +6,14 @@ namespace SignNow\Rest\Factories;
 use GuzzleHttp\Client;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\HandlerStack;
+use SignNow\Rest\Contracts\ClientFactoryInterface;
 
 /**
  * Class ClientFactory
  *
  * @package SignNow\Rest\Factories
  */
-class ClientFactory
+class ClientFactory implements ClientFactoryInterface
 {
     /**
      * @var array

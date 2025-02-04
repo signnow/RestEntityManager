@@ -3,6 +3,10 @@ declare(strict_types = 1);
 
 namespace SignNow\Rest\Factories;
 
+use SignNow\Rest\Contracts\AnnotationResolverFactoryInterface;
+use SignNow\Rest\Contracts\ClientFactoryInterface;
+use SignNow\Rest\Contracts\PoolFactoryInterface;
+use SignNow\Rest\Contracts\SerializerBuilderFactoryInterface;
 use SignNow\Rest\EntityManager;
 
 /**
@@ -13,38 +17,38 @@ use SignNow\Rest\EntityManager;
 class EntityManagerFactory
 {
     /**
-     * @var SerializerBuilderFactory
+     * @var SerializerBuilderFactoryInterface
      */
     private $builderFactory;
     
     /**
-     * @var ClientFactory
+     * @var ClientFactoryInterface
      */
     private $clientFactory;
     
     /**
-     * @var AnnotationResolverFactory
+     * @var AnnotationResolverFactoryInterface
      */
     private $annotationResolverFactory;
     
     /**
-     * @var PoolFactory
+     * @var PoolFactoryInterface
      */
     private $poolFactory;
-    
+
     /**
      * EntityManagerFactory constructor.
      *
-     * @param SerializerBuilderFactory  $builderFactory
-     * @param ClientFactory             $clientFactory
-     * @param AnnotationResolverFactory $annotationResolverFactory
-     * @param PoolFactory               $poolFactory
+     * @param ClientFactoryInterface $clientFactory
+     * @param SerializerBuilderFactoryInterface|null $builderFactory
+     * @param AnnotationResolverFactoryInterface|null $annotationResolverFactory
+     * @param PoolFactoryInterface|null $poolFactory
      */
     public function __construct(
-        ClientFactory $clientFactory,
-        SerializerBuilderFactory $builderFactory = null,
-        AnnotationResolverFactory $annotationResolverFactory = null,
-        PoolFactory $poolFactory = null
+        ClientFactoryInterface $clientFactory,
+        SerializerBuilderFactoryInterface $builderFactory = null,
+        AnnotationResolverFactoryInterface $annotationResolverFactory = null,
+        PoolFactoryInterface $poolFactory = null
     ) {
         $this->clientFactory = $clientFactory;
         $this->builderFactory = $builderFactory ?: new SerializerBuilderFactory();
